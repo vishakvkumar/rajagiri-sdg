@@ -18,6 +18,11 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-
 .crumb{font-size:13px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
 h1{font-family:var(--display);font-size:clamp(28px,4vw,40px);margin:.2em 0 .3em;color:var(--brand);text-wrap:balance}
 .intro{max-width:65ch;color:var(--muted);margin:0 0 24px}
+.sec{font-family:var(--display);font-size:22px;margin:28px 0 8px;text-wrap:balance}
+.sub{font-size:16px;margin:16px 0 6px}
+.docs{margin:0;padding-left:20px;display:grid;gap:4px}
+.docs a{color:var(--brand)}
+.intro{margin-top:0}
 .demo-note{display:inline-block;font-size:13px;background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:4px 10px;margin-bottom:20px;color:var(--muted)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px}
 .tile{all:unset;box-sizing:border-box;cursor:pointer;aspect-ratio:1;max-width:100%;background:var(--c);color:#fff;padding:10px;display:flex;flex-direction:column;justify-content:space-between;border-radius:3px;transition:transform .15s ease, box-shadow .15s ease}
@@ -49,9 +54,21 @@ h1{font-family:var(--display);font-size:clamp(28px,4vw,40px);margin:.2em 0 .3em;
   <div class="crumb">Home / Rajagiri SDG</div>
   <h1>Rajagiri &amp; the Sustainable Development Goals</h1>
   <div id="gridView">
-  <p class="intro">Select a goal to read Rajagiri's report on it. The document opens on this same page; use Back to return to the goals.</p>
+  <h2 class="sec">About Rajagiri SDG</h2>
+  <p class="intro">Rajagiri’s commitment to the Sustainable Development Goals (SDGs) reflects a long-standing legacy of social responsibility, community empowerment, and ethical leadership. Through initiatives that promote quality education, environmental stewardship, inclusivity, and sustainable community development, Rajagiri continues to uphold its tradition of relentlessly striving towards excellence. By integrating service-learning, outreach programs, and real-world impact projects into academic life, Rajagiri nurtures responsible global citizens and strengthens its legacy of transforming society through compassion, innovation, and collective action.</p>
+  <h2 class="sec">Our work across the 17 Goals</h2>
+  <p class="intro">Select a goal to view Rajagiri’s report on it. The report opens on this page; use Back to return to the goals.</p>
   <span class="demo-note">Demo: each tile loads a sample 2-page PDF</span>
   <div class="grid" id="grid" role="group" aria-label="Sustainable Development Goals"></div>
+  <h2 class="sec">Rajagiri’s Initiatives in Broadening Opportunities and Well-being (RAINBOW)</h2>
+  <p class="intro">Rajagiri’s commitment to the physical and mental well-being (SDG 3: Good Health and Well-Being) of those in need is unwavering. In addition to ensuring their holistic welfare, Rajagiri is also conscious of providing a broad range of opportunities for them to excel in their lives, as the institution’s Vision rightly declares.</p>
+  <p class="intro">Rajagiri ensures their holistic well-being and provides opportunities by collaborating with various governmental and non-governmental agencies at the local, national, and international levels, much like the spectrum of colours in a rainbow. Main projects under RAINBOW are the Kaval Project, the Suraksha Migrant Project, and Mission Vatsalya in collaboration with UNICEF.</p>
+  <h3 class="sub">Related documents</h3>
+  <ul class="docs">
+    <li><a href="https://rajagiri.edu/uploads/files/947/Kaval.pdf" target="_blank" rel="noopener">Kaval Project</a></li>
+    <li><a href="https://rajagiri.edu/uploads/files/948/Suraksha%20Migrant%20Project.pdf" target="_blank" rel="noopener">Suraksha Migrant Project</a></li>
+    <li><a href="https://rajagiri.edu/uploads/files/949/UNICEF.pdf" target="_blank" rel="noopener">UNICEF – Mission Vatsalya</a></li>
+  </ul>
   </div>
 
   <section class="viewer" id="viewer" aria-live="polite" hidden>

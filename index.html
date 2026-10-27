@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rajagiri SDG Demo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Layout: page header, 17-tile grid, inline PDF viewer panel directly below */
+:root{
+  --bg:#f6f5f2; --surface:#ffffff; --fg:#1d2230; --muted:#5d6475; --line:#dcdad3; --brand:#7a1f2b; --viewer:#e9e7e1;
+  --display:"Source Serif 4", Georgia, serif; --body:"Source Sans 3", "Segoe UI", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15171c;--surface:#1e2128;--fg:#e9e9ec;--muted:#a2a7b4;--line:#33373f;--brand:#e08a95;--viewer:#0f1014;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15171c;--surface:#1e2128;--fg:#e9e9ec;--muted:#a2a7b4;--line:#33373f;--brand:#e08a95;--viewer:#0f1014;color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55}
+.wrap{max-width:1080px;margin:0 auto;padding-block:28px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.crumb{font-size:13px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+h1{font-family:var(--display);font-size:clamp(28px,4vw,40px);margin:.2em 0 .3em;color:var(--brand);text-wrap:balance}
+.intro{max-width:65ch;color:var(--muted);margin:0 0 24px}
+.demo-note{display:inline-block;font-size:13px;background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:4px 10px;margin-bottom:20px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px}
+.tile{all:unset;box-sizing:border-box;cursor:pointer;aspect-ratio:1;max-width:100%;background:var(--c);color:#fff;padding:10px;display:flex;flex-direction:column;justify-content:space-between;border-radius:3px;transition:transform .15s ease, box-shadow .15s ease}
+.tile:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,.18)}
+.tile:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+.tile[aria-pressed="true"]{outline:3px solid var(--fg);outline-offset:3px}
+.tile .n{font-family:var(--display);font-weight:700;font-size:34px;line-height:1}
+.tile .t{font-weight:700;font-size:12.5px;line-height:1.2;text-transform:uppercase;letter-spacing:.02em}
+.back{font:inherit;font-weight:600;color:var(--brand);background:none;border:1px solid var(--line);border-radius:3px;padding:6px 12px;cursor:pointer;flex:none}
+.back:focus-visible{outline:2px solid var(--brand)}
+.vbar h2{flex:1 1 220px}
+.viewer{margin-top:8px;background:var(--surface);border:1px solid var(--line);border-radius:4px;scroll-margin-top:16px}
+.vbar{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line)}
+.vbar h2{font-family:var(--display);font-size:20px;margin:0;display:flex;align-items:center;gap:10px;min-width:0}
+.swatch{width:14px;height:14px;border-radius:2px;background:var(--c,var(--muted));flex:none}
+.controls{display:flex;gap:6px;align-items:center;font-size:14px;color:var(--muted)}
+.controls button{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:3px;padding:4px 10px;cursor:pointer}
+.controls button:focus-visible{outline:2px solid var(--brand)}
+.pages{background:var(--viewer);height:min(75vh,820px);overflow:auto;padding:16px;display:flex;flex-direction:column;align-items:flex-start;gap:14px}
+.pages canvas{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.25);margin-inline:auto;flex:none}
+[hidden]{display:none!important}
+.status{color:var(--muted);margin:auto;text-align:center}
+@media (prefers-reduced-motion:reduce){.tile{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="crumb">Home / Rajagiri SDG</div>
+  <h1>Rajagiri &amp; the Sustainable Development Goals</h1>
+  <div id="gridView">
+  <p class="intro">Select a goal to read Rajagiri's report on it. The document opens on this same page; use Back to return to the goals.</p>
+  <span class="demo-note">Demo: each tile loads a sample 2-page PDF</span>
+  <div class="grid" id="grid" role="group" aria-label="Sustainable Development Goals"></div>
+  </div>
+
+  <section class="viewer" id="viewer" aria-live="polite" hidden>
+    <div class="vbar">
+      <button class="back" id="back">← Back to all goals</button>
+      <h2><span class="swatch" id="sw"></span><span id="vtitle">SDG 1: No Poverty</span></h2>
+      <div class="controls">
+        <button id="zout" aria-label="Zoom out">−</button>
+        <span id="zl">100%</span>
+        <button id="zin" aria-label="Zoom in">+</button>
+      </div>
+    </div>
+    <div class="pages" id="pages"><p class="status">Loading…</p></div>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js"></script>
+<script>
+const SDGS=[["No Poverty","#E5243B"],["Zero Hunger","#DDA63A"],["Good Health and Well-being","#4C9F38"],["Quality Education","#C5192D"],["Gender Equality","#FF3A21"],["Clean Water and Sanitation","#26BDE2"],["Affordable and Clean Energy","#FCC30B"],["Decent Work and Economic Growth","#A21942"],["Industry, Innovation and Infrastructure","#FD6925"],["Reduced Inequalities","#DD1367"],["Sustainable Cities and Communities","#FD9D24"],["Responsible Consumption and Production","#BF8B2E"],["Climate Action","#3F7E44"],["Life Below Water","#0A97D9"],["Life on Land","#56C02B"],["Peace, Justice and Strong Institutions","#00689D"],["Partnerships for the Goals","#19486A"]];
+const grid=document.getElementById('grid'),pagesEl=document.getElementById('pages'),viewer=document.getElementById('viewer');
+let doc=null,scale=1,current=0,token=0;
+if(window.pdfjsLib){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';}
+
+SDGS.forEach(([name,col],i)=>{
+  const b=document.createElement('button');
+  b.className='tile';b.id='sdg-'+(i+1);b.style.setProperty('--c',col);
+  b.setAttribute('aria-pressed','false');
+  b.innerHTML='<span class="n">'+(i+1)+'</span><span class="t">'+name+'</span>';
+  b.addEventListener('click',()=>{try{history.pushState({sdg:i+1},'','#sdg'+(i+1));}catch(e){} show(i);});
+  grid.appendChild(b);
+});
+
+async function open(i){
+  current=i;const t=++token;
+  document.querySelectorAll('.tile').forEach((el,k)=>el.setAttribute('aria-pressed',k===i));
+  document.getElementById('vtitle').textContent='SDG '+(i+1)+': '+SDGS[i][0];
+  document.getElementById('sw').style.setProperty('--c',SDGS[i][1]);
+  pagesEl.innerHTML='<p class="status">Loading…</p>';
+  try{
+    const d=await pdfjsLib.getDocument('pdfs/sdg'+(i+1)+'.pdf').promise;
+    if(t!==token)return; doc=d; await render(t);
+  }catch(e){ if(t===token) pagesEl.innerHTML='<p class="status">This report could not be loaded. Check that pdfs/sdg'+(i+1)+'.pdf exists.</p>'; }
+}
+async function render(t){
+  pagesEl.innerHTML='';
+  const ratio=window.devicePixelRatio||1;
+  const avail=Math.min(pagesEl.clientWidth-32,820);
+  for(let p=1;p<=doc.numPages;p++){
+    const page=await doc.getPage(p); if(t!==token)return;
+    const base=page.getViewport({scale:1});
+    const vp=page.getViewport({scale:(avail/base.width)*scale*ratio});
+    const c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
+    c.style.width=(vp.width/ratio)+'px';
+    pagesEl.appendChild(c);
+    await page.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
+  }
+}
+function zoom(d){scale=Math.min(2,Math.max(.5,+(scale+d).toFixed(2)));document.getElementById('zl').textContent=Math.round(scale*100)+'%';if(doc)render(++token);}
+document.getElementById('zin').onclick=()=>zoom(.25);
+document.getElementById('zout').onclick=()=>zoom(-.25);
+const gridView=document.getElementById('gridView');
+function show(i){gridView.hidden=true;viewer.hidden=false;window.scrollTo(0,0);open(i);}
+function showGrid(){token++;doc=null;viewer.hidden=true;gridView.hidden=false;const t=document.getElementById('sdg-'+(current+1));if(t)t.focus({preventScroll:true});window.scrollTo(0,0);}
+function fromHash(){const m=/^#sdg(\d+)$/.exec(location.hash);const n=m?+m[1]:0;if(n>=1&&n<=17)show(n-1);else showGrid();}
+document.getElementById('back').onclick=()=>{if(history.state&&history.state.sdg){history.back();}else{try{history.pushState({},'',location.pathname+location.search);}catch(e){} showGrid();}};
+window.addEventListener('popstate',fromHash);
+window.addEventListener('hashchange',fromHash);
+fromHash();
+</script>
+</body>
+</html>
